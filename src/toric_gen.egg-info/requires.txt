@@ -1,0 +1,7 @@
+numpy
+stim
+pymatching
+
+[dev]
+pytest
+matplotlib
