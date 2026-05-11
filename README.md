@@ -2,201 +2,6 @@
 
 This repository currently contains three working toric-code memory prototypes built to interface cleanly with **Stim** and **PyMatching**.
 
-## Current status
-
-We now have:
-
-1. **Stim-clean Z-memory prototype**
-2. **Stim-clean X-memory prototype**
-3. **Stim-clean mixed X/Z memory prototype**
-
-All three can generate circuits, build a detector error model, and decode with PyMatching.
-
----
-
-# 1. Stim-clean Z-memory prototype
-
-This version only implements:
-
-- Z-basis data preparation / readout
-- Z stabilizer rounds
-- one logical observable: `Z1`
-
-## Verified properties
-
-- `detector_error_model(decompose_errors=True)` succeeds
-- PyMatching decoder can be constructed
-- end-to-end sampling and decoding work
-- logical error rate decreases as code distance increases
-
-## Interpretation
-
-This prototype serves as a clean baseline for a Z-basis memory task.
-
----
-
-# 2. Stim-clean X-memory prototype
-
-This version is the X-basis analogue of the Z prototype. It implements:
-
-- X-basis data preparation / readout
-- X stabilizer rounds
-- one logical observable: `X1`
-
-## Verified properties
-
-- `detector_error_model(decompose_errors=True)` succeeds
-- PyMatching decoder can be constructed
-- end-to-end sampling and decoding work
-- logical error rate decreases as code distance increases
-
-## Interpretation
-
-This prototype serves as a clean baseline for an X-basis memory task.
-
----
-
-# 3. Stim-clean mixed X/Z memory prototype
-
-This version combines both stabilizer types into a single toric memory experiment.
-
-Each **macro-round** is implemented as:
-
-1. one X-only clean subround
-2. one Z-only clean subround
-
-instead of trying to force both stabilizer types into one tightly interleaved hand-written round.
-
-## Boundary rule
-
-The mixed prototype uses **basis-aware boundary detectors**:
-
-### For `basis="Z"`
-- first-round **Z** detectors are included
-- first-round **X** detectors are omitted
-- final closure uses **Z** checks only
-- logical observable is `Z1`
-
-### For `basis="X"`
-- first-round **X** detectors are included
-- first-round **Z** detectors are omitted
-- final closure uses **X** checks only
-- logical observable is `X1`
-
-This was necessary to avoid non-deterministic detectors in Stim.
-
-## Verified properties
-
-For both `basis="Z"` and `basis="X"`:
-
-- `detector_error_model(decompose_errors=True)` succeeds
-- PyMatching decoder can be constructed
-- detector sampling works
-- end-to-end decoding works
-- logical error rate decreases as code distance increases
-
----
-
-# 4. Numerical behavior
-
-## Clean X-only / Z-only prototypes
-
-Both clean prototypes show clear distance scaling:
-
-- at fixed physical noise, increasing code distance lowers logical error rate
-- low-noise runs show especially clean suppression
-
-This confirms that both clean prototypes behave like proper memory experiments.
-
-## Mixed X/Z prototype
-
-The mixed prototype also shows correct distance scaling for both:
-
-- `basis="Z"`
-- `basis="X"`
-
-So the mixed circuit is not only syntactically valid and decodable, but also physically reasonable as a memory experiment.
-
----
-
-# 5. Clean vs mixed comparison
-
-The clean prototypes consistently perform **slightly better** than the mixed prototype.
-
-This is expected, because the mixed prototype includes additional syndrome-extraction overhead:
-
-- more ancilla resets / measurements
-- more two-qubit gates
-- longer syndrome cycle
-- more possible fault locations
-
-So the result can be summarized as:
-
-- **clean prototypes** = simpler, lower-overhead baselines
-- **mixed prototype** = more complete toric memory circuit, with modest performance cost
-
-Importantly, the mixed prototype still retains correct distance scaling.
-
----
-
-# 6. Main conclusions
-
-At this stage, the project has established:
-
-- a working **Stim-clean Z-memory baseline**
-- a working **Stim-clean X-memory baseline**
-- a working **Stim-clean mixed X/Z toric memory prototype**
-- successful **Stim -> DEM -> PyMatching -> sampling -> decoding** integration
-- correct **distance scaling** in all working prototypes
-
-In short:
-
-> The mixed X/Z toric memory circuit is now working end-to-end.
-
----
-
-# 7. Recommended interpretation of the prototypes
-
-## Clean prototypes
-Use these when you want:
-
-- the simplest possible baseline
-- lower-overhead logical error measurements
-- easier debugging and benchmarking
-
-## Mixed prototype
-Use this when you want:
-
-- a more complete toric memory experiment
-- both X and Z stabilizer extraction in the same circuit
-- a better bridge toward a fuller toric-code implementation
-
----
-
-# 8. Next possible steps
-
-## Option A: consolidate current results
-- keep the current clean and mixed prototypes as baselines
-- document all scaling plots and comparisons
-- use them for future regression tests
-
-## Option B: move toward a more canonical full toric schedule
-- start from the working mixed prototype
-- try to reduce overhead or tighten the schedule
-- compare every new schedule against the current Stim-clean baseline
-
----
-
-# 9. Practical takeaway
-
-The safest current workflow is:
-
-1. use `stim_clean_z` and `stim_clean_x` as reference baselines
-2. use `stim_clean_xz` as the current full mixed toric memory prototype
-3. compare any future circuit design against these three working versions
-
-This gives a stable development path without losing a known-good decoder-compatible implementation.
-
 # toric-gen
 
 Commands after cloning
@@ -246,3 +51,106 @@ source .venv/bin/activate
 pip install -e .
 python examples/demo_decode_clean_xz.py
 ```
+
+
+## How to use toric-gen
+
+`toric-gen` provides a Stim-compatible toric code memory experiment generator.  
+It can generate a quantum circuit, convert the circuit into a detector error model, and decode detection events using PyMatching.
+
+### Basic usage
+
+```python
+from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
+import pymatching
+
+gen = ToricCodeStimCleanXZGenerator(
+    distance=3,
+    rounds=3,
+    noise=NoiseModel(
+        before_round_data_depolarization=0.001,
+        after_clifford_depolarization=0.001,
+        before_measure_flip_probability=0.001,
+        after_reset_flip_probability=0.001,
+    ),
+)
+
+circuit = gen.build_memory_experiment(basis="Z")
+
+print(circuit)
+```
+
+### Decode with PyMatching
+
+```python
+from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
+import pymatching
+
+distance = 3
+rounds = 3
+p = 0.001
+shots = 1000
+
+gen = ToricCodeStimCleanXZGenerator(
+    distance=distance,
+    rounds=rounds,
+    noise=NoiseModel(
+        before_round_data_depolarization=p,
+        after_clifford_depolarization=p,
+        before_measure_flip_probability=p,
+        after_reset_flip_probability=p,
+    ),
+)
+
+circuit = gen.build_memory_experiment(basis="Z")
+
+dem = circuit.detector_error_model(decompose_errors=True)
+matching = pymatching.Matching.from_detector_error_model(dem)
+
+sampler = circuit.compile_detector_sampler()
+detection_events, observable_flips = sampler.sample(
+    shots=shots,
+    separate_observables=True,
+)
+
+predictions = matching.decode_batch(detection_events)
+
+num_errors = (predictions[:, 0] != observable_flips[:, 0]).sum()
+logical_error_rate = num_errors / shots
+
+print("distance:", distance)
+print("rounds:", rounds)
+print("physical error rate:", p)
+print("shots:", shots)
+print("logical errors:", num_errors)
+print("logical error rate:", logical_error_rate)
+```
+
+### Run the included example
+
+After installation, you can run the example script:
+
+```bash
+python examples/demo_decode_clean_xz.py
+```
+
+### Main parameters
+
+- `distance`: code distance of the toric code.
+- `rounds`: number of syndrome extraction rounds.
+- `basis`: memory experiment basis. Use `"X"` or `"Z"`.
+- `before_round_data_depolarization`: depolarizing noise applied to data qubits before each round.
+- `after_clifford_depolarization`: depolarizing noise applied after Clifford gates.
+- `before_measure_flip_probability`: measurement flip probability before measurement.
+- `after_reset_flip_probability`: reset flip probability after reset.
+
+### Typical workflow
+
+1. Create a `NoiseModel`.
+2. Create a `ToricCodeStimCleanXZGenerator`.
+3. Build a memory experiment circuit with `build_memory_experiment`.
+4. Convert the circuit to a detector error model.
+5. Build a PyMatching decoder from the detector error model.
+6. Sample detection events from the Stim circuit.
+7. Decode the detection events with PyMatching.
+8. Compare the prediction with the observable flips to estimate the logical error rate.
