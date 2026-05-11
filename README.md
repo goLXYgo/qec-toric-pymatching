@@ -134,23 +134,3 @@ After installation, you can run the example script:
 python examples/demo_decode_clean_xz.py
 ```
 
-### Main parameters
-
-- `distance`: code distance of the toric code.
-- `rounds`: number of syndrome extraction rounds.
-- `basis`: memory experiment basis. Use `"X"` or `"Z"`.
-- `before_round_data_depolarization`: depolarizing noise applied to data qubits before each round.
-- `after_clifford_depolarization`: depolarizing noise applied after Clifford gates.
-- `before_measure_flip_probability`: measurement flip probability before measurement.
-- `after_reset_flip_probability`: reset flip probability after reset.
-
-### Typical workflow
-
-1. Create a `NoiseModel`.
-2. Create a `ToricCodeStimCleanXZGenerator`.
-3. Build a memory experiment circuit with `build_memory_experiment`.
-4. Convert the circuit to a detector error model.
-5. Build a PyMatching decoder from the detector error model.
-6. Sample detection events from the Stim circuit.
-7. Decode the detection events with PyMatching.
-8. Compare the prediction with the observable flips to estimate the logical error rate.
