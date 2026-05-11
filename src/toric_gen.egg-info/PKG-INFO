@@ -7,6 +7,7 @@ Description-Content-Type: text/markdown
 Requires-Dist: numpy
 Requires-Dist: stim
 Requires-Dist: pymatching
+Requires-Dist: pandas
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Requires-Dist: matplotlib; extra == "dev"
@@ -209,3 +210,53 @@ The safest current workflow is:
 3. compare any future circuit design against these three working versions
 
 This gives a stable development path without losing a known-good decoder-compatible implementation.
+
+# toric-gen
+
+Commands after cloning
+
+This is the most typical workflow after cloning the repository.
+
+Windows PowerShell
+```powershell
+git clone <your-repo-url>
+cd toric-gen
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e .[dev]
+pytest -q
+python examples/demo_decode_clean_xz.py
+```
+
+macOS / Linux
+```bash
+git clone <your-repo-url>
+cd toric-gen
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+pytest -q
+python examples/demo_decode_clean_xz.py
+```
+
+If you only want the minimal install
+
+Windows PowerShell
+```powershell
+git clone <your-repo-url>
+cd toric-gen
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e .
+python examples/demo_decode_clean_xz.py
+```
+
+macOS / Linux
+```bash
+git clone <your-repo-url>
+cd toric-gen
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+python examples/demo_decode_clean_xz.py
+```

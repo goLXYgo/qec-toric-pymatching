@@ -142,8 +142,8 @@ class ToricCodeLayout:
         """
         Two independent dual non-contractible loops.
         """
-        loop_x = [self.data_qid(("v", x, 0)) for x in range(self.L)]
-        loop_y = [self.data_qid(("h", 0, y)) for y in range(self.L)]
+        loop_x = [self.data_qid(("h", 0, x)) for x in range(self.L)]
+        loop_y = [self.data_qid(("v", y, 0)) for y in range(self.L)]
         return {"X1": loop_x, "X2": loop_y}
 
     def qubit_coords(self) -> Dict[int, Tuple[float, float]]:

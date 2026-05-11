@@ -11,7 +11,4 @@ src/toric_gen.egg-info/SOURCES.txt
 src/toric_gen.egg-info/dependency_links.txt
 src/toric_gen.egg-info/requires.txt
 src/toric_gen.egg-info/top_level.txt
-tests/test_clean_x.py
-tests/test_clean_xz.py
-tests/test_clean_z.py
 tests/test_layout.py

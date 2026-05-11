@@ -12,6 +12,7 @@ dependencies = [
     "numpy",
     "stim",
     "pymatching",
+    "pandas",
 ]
 
 [project.optional-dependencies]

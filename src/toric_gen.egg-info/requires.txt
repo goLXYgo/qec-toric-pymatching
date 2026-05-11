@@ -1,6 +1,7 @@
 numpy
 stim
 pymatching
+pandas
 
 [dev]
 pytest

@@ -314,15 +314,39 @@ class ToricCodeStimCleanXZGenerator:
                 [v[0], v[1], t],
             )
 
-    def _append_observable_include_z1(self, final_data_meas_by_qid: Dict[int, int]) -> None:
-        loop_qids = self.layout.logical_z_loops()["Z1"]
-        targets = [self._rec(final_data_meas_by_qid[q]) for q in loop_qids]
-        self.circuit.append("OBSERVABLE_INCLUDE", targets, 0)
+    def _append_observable_include_z_all(
+        self,
+        final_data_meas_by_qid: Dict[int, int],
+    ) -> None:
+        logical_z_loops = self.layout.logical_z_loops()
 
-    def _append_observable_include_x1(self, final_data_meas_by_qid: Dict[int, int]) -> None:
-        loop_qids = self.layout.logical_x_loops()["X1"]
-        targets = [self._rec(final_data_meas_by_qid[q]) for q in loop_qids]
-        self.circuit.append("OBSERVABLE_INCLUDE", targets, 0)
+        for obs_index, name in enumerate(["Z1", "Z2"]):
+            if name not in logical_z_loops:
+                raise KeyError(
+                    f"layout.logical_z_loops() does not contain {name}. "
+                    f"Available keys: {list(logical_z_loops.keys())}"
+                )
+
+            loop_qids = logical_z_loops[name]
+            targets = [self._rec(final_data_meas_by_qid[q]) for q in loop_qids]
+            self.circuit.append("OBSERVABLE_INCLUDE", targets, obs_index)
+
+    def _append_observable_include_x_all(
+        self,
+        final_data_meas_by_qid: Dict[int, int],
+    ) -> None:
+        logical_x_loops = self.layout.logical_x_loops()
+
+        for obs_index, name in enumerate(["X1", "X2"]):
+            if name not in logical_x_loops:
+                raise KeyError(
+                    f"layout.logical_x_loops() does not contain {name}. "
+                    f"Available keys: {list(logical_x_loops.keys())}"
+                )
+
+            loop_qids = logical_x_loops[name]
+            targets = [self._rec(final_data_meas_by_qid[q]) for q in loop_qids]
+            self.circuit.append("OBSERVABLE_INCLUDE", targets, obs_index)
 
     # ------------------------------------------------------------------
     # Public API
@@ -382,7 +406,7 @@ class ToricCodeStimCleanXZGenerator:
                 last_z_meas=prev_z,
                 t=2 * self.rounds,
             )
-            self._append_observable_include_z1(final_data_meas_by_qid)
+            self._append_observable_include_z_all(final_data_meas_by_qid)
 
         else:
             assert prev_x is not None
@@ -391,6 +415,6 @@ class ToricCodeStimCleanXZGenerator:
                 last_x_meas=prev_x,
                 t=2 * self.rounds,
             )
-            self._append_observable_include_x1(final_data_meas_by_qid)
+            self._append_observable_include_x_all(final_data_meas_by_qid)
 
         return self.circuit
