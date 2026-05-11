@@ -91,11 +91,6 @@ class ToricCodeLayout:
         return self.z_anc_ids[(self.mod(x), self.mod(y))]
 
     def x_check_support(self, v: VertexCoord) -> List[EdgeCoord]:
-        """
-        X stabilizer at vertex (x, y), acting on four incident edges.
-
-        Use parity-dependent order to reduce unwanted ancilla-ancilla coupling.
-        """
         x, y = self.mod(v[0]), self.mod(v[1])
 
         east = ("h", x, y)
@@ -111,11 +106,6 @@ class ToricCodeLayout:
             return [east, south, west, north]
 
     def z_check_support(self, p: PlaquetteCoord) -> List[EdgeCoord]:
-        """
-        Z stabilizer on plaquette with lower-left corner (x, y).
-
-        Use parity-dependent order to reduce unwanted ancilla-ancilla coupling.
-        """
         x, y = self.mod(p[0]), self.mod(p[1])
 
         left = ("v", x, y)
@@ -131,25 +121,16 @@ class ToricCodeLayout:
             return [left, top, right, bottom]
 
     def logical_z_loops(self) -> Dict[str, List[int]]:
-        """
-        Two independent primal non-contractible loops.
-        """
         loop_x = [self.data_qid(("h", x, 0)) for x in range(self.L)]
         loop_y = [self.data_qid(("v", 0, y)) for y in range(self.L)]
         return {"Z1": loop_x, "Z2": loop_y}
 
     def logical_x_loops(self) -> Dict[str, List[int]]:
-        """
-        Two independent dual non-contractible loops.
-        """
         loop_x = [self.data_qid(("h", 0, x)) for x in range(self.L)]
         loop_y = [self.data_qid(("v", y, 0)) for y in range(self.L)]
         return {"X1": loop_x, "X2": loop_y}
 
     def qubit_coords(self) -> Dict[int, Tuple[float, float]]:
-        """
-        Coordinates for debugging / visualization.
-        """
         out: Dict[int, Tuple[float, float]] = {}
 
         for (kind, x, y), q in self.data_ids.items():

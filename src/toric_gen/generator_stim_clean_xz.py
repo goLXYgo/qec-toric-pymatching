@@ -13,27 +13,6 @@ from .noise import NoiseModel
 
 
 class ToricCodeStimCleanXZGenerator:
-    """
-    Mixed X/Z toric memory prototype built from two Stim-clean subrounds.
-
-    Each macro-round contains:
-        1) one X-only clean subround
-        2) one Z-only clean subround
-
-    Boundary rules are basis-aware:
-      - memory_Z:
-          * first-round Z detectors exist
-          * first-round X detectors do NOT exist
-          * last X inter-round detector layer is skipped
-          * final closure uses Z checks only
-          * observable is Z1
-      - memory_X:
-          * first-round X detectors exist
-          * first-round Z detectors do NOT exist
-          * last Z inter-round detector layer is skipped
-          * final closure uses X checks only
-          * observable is X1
-    """
 
     def __init__(self, distance: int, rounds: int, noise: NoiseModel | None = None):
         self.layout = ToricCodeLayout(distance)
