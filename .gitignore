@@ -23,7 +23,8 @@ Thumbs.db
 *.tmp
 results/
 outputs/
-plots/
+data_outputs/
+demo_outputs/
 
 # Secrets
 .env

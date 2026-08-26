@@ -8,7 +8,7 @@ from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
 def main() -> None:
     distance = 2
     rounds = 1
-    basis = "Z"   # 可改成 "X"
+    basis = "Z"   
     p = 0.00
 
     out_dir = Path("outputs")

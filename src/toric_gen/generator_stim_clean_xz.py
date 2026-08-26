@@ -208,8 +208,6 @@ class ToricCodeStimCleanXZGenerator:
         last_round = (round_index == self.rounds - 1)
 
         if prev_x is None:
-            # First X subround:
-            # deterministic only for memory_X
             if basis == "X":
                 for v, cur_idx in cur_x.items():
                     self.circuit.append(
@@ -218,7 +216,6 @@ class ToricCodeStimCleanXZGenerator:
                         [v[0], v[1], t_sub],
                     )
         else:
-            # In memory_Z, the last X time boundary is not closed by final readout.
             if not (basis == "Z" and last_round):
                 for v, cur_idx in cur_x.items():
                     self.circuit.append(
@@ -238,8 +235,6 @@ class ToricCodeStimCleanXZGenerator:
         last_round = (round_index == self.rounds - 1)
 
         if prev_z is None:
-            # First Z subround:
-            # deterministic only for memory_Z
             if basis == "Z":
                 for p, cur_idx in cur_z.items():
                     self.circuit.append(
@@ -248,7 +243,6 @@ class ToricCodeStimCleanXZGenerator:
                         [p[0] + 0.5, p[1] + 0.5, t_sub],
                     )
         else:
-            # In memory_X, the last Z time boundary is not closed by final readout.
             if not (basis == "X" and last_round):
                 for p, cur_idx in cur_z.items():
                     self.circuit.append(
