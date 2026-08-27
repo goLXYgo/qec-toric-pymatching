@@ -3,9 +3,9 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "toric-gen"
+name = "qec-gen"
 version = "0.1.0"
-description = "Stim and PyMatching compatible toric code memory experiment generators"
+description = "Shared Stim and PyMatching tools for quantum error-correcting codes"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

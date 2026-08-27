@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
+from qec_gen import NoiseModel, ToricCodeStimCleanXZGenerator
 
 
 def main() -> None:

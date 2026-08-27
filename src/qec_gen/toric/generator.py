@@ -1,20 +1,19 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Dict, Iterable, List
 
 import stim
 
 from .layout import ToricCodeLayout, VertexCoord, PlaquetteCoord, EdgeCoord
-from .noise import NoiseModel
-
-@dataclass
+from ..noise import NoiseModel
 
 
 
 class ToricCodeStimCleanXZGenerator:
 
     def __init__(self, distance: int, rounds: int, noise: NoiseModel | None = None):
+        if rounds <= 0:
+            raise ValueError("rounds must be greater than zero")
         self.layout = ToricCodeLayout(distance)
         self.rounds = rounds
         self.noise = noise or NoiseModel()

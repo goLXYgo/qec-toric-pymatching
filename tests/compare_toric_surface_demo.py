@@ -9,7 +9,7 @@ import numpy as np
 import pymatching
 import stim
 
-from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
+from qec_gen import NoiseModel, ToricCodeStimCleanXZGenerator
 
 
 Basis = Literal["X", "Z"]

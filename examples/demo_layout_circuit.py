@@ -5,8 +5,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import stim
 
-from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
-from toric_gen.layout import ToricCodeLayout
+from qec_gen import NoiseModel, ToricCodeStimCleanXZGenerator
+from qec_gen.toric import ToricCodeLayout
 
 
 def save_text(path: Path, text: str) -> None:

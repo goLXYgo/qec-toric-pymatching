@@ -1,136 +1,65 @@
-# Toric Code Memory Experiment Progress
+# qec-gen
 
-This repository currently contains three working toric-code memory prototypes built to interface cleanly with **Stim** and **PyMatching**.
+`qec-gen` provides shared noise, decoding, and simulation tools for quantum
+error-correcting code experiments built with Stim and PyMatching.
 
-# toric-gen
+The Toric memory experiment is implemented. Peter Shor and Bacon Shor have
+package boundaries that share the same `NoiseModel`; their circuit generators
+are the next implementations to add.
 
-Commands after cloning
+## Install
 
-This is the most typical workflow after cloning the repository.
-
-Windows PowerShell
 ```powershell
-git clone <your-repo-url>
-cd toric-gen
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -e .[dev]
+pip install -e ".[dev]"
 pytest -q
-python examples/demo_decode_clean_xz.py
 ```
 
-macOS / Linux
-```bash
-git clone <your-repo-url>
-cd toric-gen
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .[dev]
-pytest -q
-python examples/demo_decode_clean_xz.py
-```
-
-If you only want the minimal install
-
-Windows PowerShell
-```powershell
-git clone <your-repo-url>
-cd toric-gen
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -e .
-python examples/demo_decode_clean_xz.py
-```
-
-macOS / Linux
-```bash
-git clone <your-repo-url>
-cd toric-gen
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-python examples/demo_decode_clean_xz.py
-```
-
-
-## How to use toric-gen
-
-`toric-gen` provides a Stim-compatible toric code memory experiment generator.  
-It can generate a quantum circuit, convert the circuit into a detector error model, and decode detection events using PyMatching.
-
-### Basic usage
+## Toric memory experiment
 
 ```python
-from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
-import pymatching
+from qec_gen import (
+    NoiseModel,
+    ToricCodeStimCleanXZGenerator,
+    decode_memory_experiment,
+)
 
-gen = ToricCodeStimCleanXZGenerator(
+noise = NoiseModel(
+    before_round_data_depolarization=0.001,
+    after_clifford_depolarization=0.001,
+    before_measure_flip_probability=0.001,
+    after_reset_flip_probability=0.001,
+)
+generator = ToricCodeStimCleanXZGenerator(
     distance=3,
     rounds=3,
-    noise=NoiseModel(
-        before_round_data_depolarization=0.001,
-        after_clifford_depolarization=0.001,
-        before_measure_flip_probability=0.001,
-        after_reset_flip_probability=0.001,
-    ),
+    noise=noise,
 )
+circuit = generator.build_memory_experiment(basis="Z")
+result = decode_memory_experiment(circuit, shots=10_000)
 
-circuit = gen.build_memory_experiment(basis="Z")
-
-print(circuit)
+print(result.logical_error_rate)
 ```
 
-### Decode with PyMatching
+## Package layout
 
-```python
-from toric_gen import NoiseModel, ToricCodeStimCleanXZGenerator
-import pymatching
-
-distance = 3
-rounds = 3
-p = 0.001
-shots = 1000
-
-gen = ToricCodeStimCleanXZGenerator(
-    distance=distance,
-    rounds=rounds,
-    noise=NoiseModel(
-        before_round_data_depolarization=p,
-        after_clifford_depolarization=p,
-        before_measure_flip_probability=p,
-        after_reset_flip_probability=p,
-    ),
-)
-
-circuit = gen.build_memory_experiment(basis="Z")
-
-dem = circuit.detector_error_model(decompose_errors=True)
-matching = pymatching.Matching.from_detector_error_model(dem)
-
-sampler = circuit.compile_detector_sampler()
-detection_events, observable_flips = sampler.sample(
-    shots=shots,
-    separate_observables=True,
-)
-
-predictions = matching.decode_batch(detection_events)
-
-num_errors = (predictions[:, 0] != observable_flips[:, 0]).sum()
-logical_error_rate = num_errors / shots
-
-print("distance:", distance)
-print("rounds:", rounds)
-print("physical error rate:", p)
-print("shots:", shots)
-print("logical errors:", num_errors)
-print("logical error rate:", logical_error_rate)
+```text
+src/qec_gen/
+|-- noise.py
+|-- decoder.py
+|-- simulation.py
+|-- toric/
+|   |-- layout.py
+|   `-- generator.py
+|-- peter_shor/
+|   `-- generator.py
+`-- bacon_shor/
+    `-- generator.py
 ```
 
-### Run the included example
+Run the current example with:
 
-After installation, you can run the example script:
-
-```bash
-python examples/demo_decode_clean_xz.py
+```powershell
+python examples/demo_toric.py
 ```
-

@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import numpy as np
-import pymatching
-import csv
+import csv 
 
-from toric_gen import NoiseModel, ToricCodeStimCleanZGenerator
-
+from qec_gen import NoiseModel, ToricCodeStimCleanXZGenerator, decode_memory_experiment
 
 def run_case(distance: int, rounds: int, p: float, shots: int) -> tuple[float, int]:
-    gen = ToricCodeStimCleanZGenerator(
+    gen = ToricCodeStimCleanXZGenerator(
         distance=distance,
         rounds=rounds,
         noise=NoiseModel(
@@ -19,24 +16,9 @@ def run_case(distance: int, rounds: int, p: float, shots: int) -> tuple[float, i
         ),
     )
 
-    circuit = gen.build_memory_experiment_z()
-    dem = circuit.detector_error_model(decompose_errors=True)
-    matching = pymatching.Matching.from_detector_error_model(dem)
-    sampler = circuit.compile_detector_sampler()
-
-    detection_events, observable_flips = sampler.sample(
-        shots=shots,
-        separate_observables=True,
-    )
-
-    predictions = matching.decode_batch(detection_events)
-    if circuit.num_observables == 1:
-        predictions = predictions.reshape(-1, 1)
-
-    failures = np.count_nonzero(
-        np.any(predictions != observable_flips, axis=1)
-    )
-    return failures / shots, failures
+    circuit = gen.build_memory_experiment(basis="X")
+    result = decode_memory_experiment(circuit, shots)
+    return result.logical_error_rate, result.logical_errors
 
 
 def main() -> None:
@@ -69,7 +51,7 @@ def main() -> None:
             )
         print()
 
-    with open("clean_z_scan.csv", "w", newline="", encoding="utf-8") as f:
+    with open("clean_x_scan.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
             fieldnames=[
@@ -84,7 +66,7 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(rows)
 
-    print("wrote clean_z_scan.csv")
+    print("wrote clean_x_scan.csv")
 
 
 if __name__ == "__main__":
