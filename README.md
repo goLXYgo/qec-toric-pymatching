@@ -3,9 +3,9 @@
 `qec-gen` provides shared noise, decoding, and simulation tools for quantum
 error-correcting code experiments built with Stim and PyMatching.
 
-The Toric memory experiment is implemented. Peter Shor and Bacon Shor have
-package boundaries that share the same `NoiseModel`; their circuit generators
-are the next implementations to add.
+The Toric and nine-qubit Peter Shor memory experiments are implemented. Bacon
+Shor has a package boundary that shares the same `NoiseModel`; its circuit
+generator is the next implementation to add.
 
 ## Install
 
@@ -62,4 +62,16 @@ Run the current example with:
 
 ```powershell
 python examples/demo_toric.py
+```
+
+## Peter Shor memory experiment
+
+```python
+from qec_gen import NoiseModel, PeterShorCodeGenerator, decode_memory_experiment
+
+circuit = PeterShorCodeGenerator(
+    rounds=3,
+    noise=NoiseModel(before_round_data_depolarization=0.001),
+).build_memory_experiment(basis="Z")
+result = decode_memory_experiment(circuit, shots=10_000)
 ```
